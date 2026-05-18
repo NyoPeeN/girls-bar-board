@@ -51,6 +51,7 @@ body{font-family:sans-serif;background:#f5f5f5;color:#222;font-size:14px}
 .status-table th{text-align:left;font-size:12px;color:#888;font-weight:500;padding:5px 7px;border-bottom:1px solid #eee}
 .status-table td{padding:7px;border-bottom:1px solid #f0f0f0;font-size:12px;vertical-align:middle}
 .status-table tr:last-child td{border-bottom:none}
+.overlap-badge{display:inline-block;padding:1px 6px;border-radius:20px;font-size:11px;background:#ffeaea;color:#a32d2d;border:1px solid #f09595;margin-left:4px}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
 .modal{background:#fff;border-radius:12px;padding:18px;width:280px;max-width:92vw;max-height:80vh;overflow-y:auto}
@@ -168,12 +169,35 @@ function getSchedule(course){
   const base=course.type;
   const ext=course.extended||0;
   const total=base+ext;
-  const change=toTime(sm+base/2);
   return{
-    change,
+    change:toTime(sm+base/2),
     extNeg:toTime(sm+base-5),
     end:toTime(sm+total)
   };
+}
+
+function getStaffRange(course,name){
+  const sc=getSchedule(course);
+  const inFirst=course.firstHalf.includes(name);
+  const inSecond=course.secondHalf.includes(name);
+  if(inFirst&&inSecond)return{start:course.start,end:sc.end};
+  if(inFirst)return{start:course.start,end:sc.change};
+  if(inSecond)return{start:sc.change,end:sc.end};
+  return null;
+}
+
+function hasOverlap(courses,name){
+  const ranges=courses
+    .filter(c=>!c.done)
+    .map(c=>getStaffRange(c,name))
+    .filter(Boolean)
+    .map(r=>({s:toMins(r.start),e:toMins(r.end)}));
+  for(let i=0;i<ranges.length;i++){
+    for(let j=i+1;j<ranges.length;j++){
+      if(ranges[i].s<ranges[j].e&&ranges[j].s<ranges[i].e)return true;
+    }
+  }
+  return false;
 }
 
 function switchShop(i){
@@ -232,7 +256,6 @@ function removeGirl(si,ci,half,name){
   else c.secondHalf=c.secondHalf.filter(n=>n!==name);
   save();renderShop(si);
 }
-
 function jonaiBtnClick(si,ci){
   const course=shops[si].courses[ci];
   if(course.firstHalf.length===0){alert('前半に女の子がいません');return;}
@@ -245,7 +268,6 @@ function jonaiBtnClick(si,ci){
   course.secondHalf=[...course.firstHalf];
   save();renderShop(si);
 }
-
 function openExtend(si,ci){
   pendingShop=si;pendingExtCourse=ci;
   const sel=document.getElementById('inputExtend');
@@ -365,26 +387,30 @@ function renderStatusTab(idx){
   if(working.length===0){html+=`<div class="empty">出勤中のスタッフがいません</div>`;}
   else{
     html+=`<table class="status-table"><thead><tr>
-      <th>名前</th><th>状況</th><th>コース</th><th>抜け時間</th>
+      <th>名前</th><th>状況</th><th>コース</th><th>時間</th>
     </tr></thead><tbody>`;
     working.forEach(s=>{
       const ac=shop.courses.filter(c=>!c.done&&(c.firstHalf.includes(s.name)||c.secondHalf.includes(s.name)));
+      const overlap=hasOverlap(shop.courses,s.name);
+      const overlapBadge=overlap?`<span class="overlap-badge">⚠ 重複</span>`:'';
       if(ac.length===0){
-        html+=`<tr><td><span class="dot free"></span>${s.name}</td><td><span class="badge free">空き</span></td><td>—</td><td>—</td></tr>`;
+        html+=`<tr><td><span class="dot free"></span>${s.name}${overlapBadge}</td><td><span class="badge free">空き</span></td><td>—</td><td>—</td></tr>`;
       }else{
         ac.forEach((c,i)=>{
-          const sc=getSchedule(c);
           const ci=shop.courses.indexOf(c);
+          const range=getStaffRange(c,s.name);
           const inFirst=c.firstHalf.includes(s.name);
           const inSecond=c.secondHalf.includes(s.name);
           const half=inFirst&&inSecond?'前半/後半':inFirst?'前半':'後半';
-          const leaveTime=inFirst&&!inSecond?sc.change:sc.end;
-          const lc=tlClass(leaveTime);
+          const leaveTime=range?range.end:'—';
+          const lc=leaveTime!=='—'?tlClass(leaveTime):'';
           html+=`<tr>
-            <td>${i===0?`<span class="dot busy"></span>${s.name}`:''}</td>
+            <td>${i===0?`<span class="dot busy"></span>${s.name}${overlapBadge}`:''}</td>
             <td><span class="badge busy">${half}</span></td>
             <td>#${ci+1} ${c.type}分</td>
-            <td style="font-weight:500;${lc==='done'?'color:#a32d2d':lc==='soon'?'color:#ba7517':''}">${leaveTime}</td>
+            <td style="font-size:12px;${lc==='done'?'color:#a32d2d;font-weight:500':lc==='soon'?'color:#ba7517;font-weight:500':''}">
+              ${range?`${range.start} 〜 ${range.end}`:'—'}
+            </td>
           </tr>`;
         });
       }
