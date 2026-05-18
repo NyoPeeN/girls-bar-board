@@ -13,57 +13,58 @@ body{font-family:sans-serif;background:#f5f5f5;color:#222;font-size:14px}
 .inner-tabs{display:flex;gap:4px;padding:8px 12px 0;background:#fff;border-bottom:1px solid #ddd}
 .inner-tab{padding:6px 16px;cursor:pointer;border-radius:6px 6px 0 0;color:#888;background:transparent;border:1px solid transparent;font-size:13px}
 .inner-tab.active{border-color:#ddd;border-bottom:1px solid #fff;color:#222;font-weight:500;background:#fff}
-.panel{display:none;padding:14px}
+.panel{display:none;padding:12px}
 .panel.active{display:block}
-.btn{padding:6px 14px;font-size:13px;border:1px solid #ddd;border-radius:6px;cursor:pointer;background:#fff;color:#222}
+.btn{padding:5px 12px;font-size:12px;border:1px solid #ddd;border-radius:6px;cursor:pointer;background:#fff;color:#222}
 .btn:hover{background:#f0f0f0}
 .btn.primary{background:#e1f5ee;color:#0f6e56;border-color:#5dcaa5}
 .btn.danger{background:#ffeaea;color:#a32d2d;border-color:#f09595}
 .btn.warn{background:#faeeda;color:#854f0b;border-color:#ef9f27}
-.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+.btn.info{background:#e6f1fb;color:#185fa5;border-color:#85b7eb}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
 .card{background:#fff;border:1px solid #ddd;border-radius:10px;padding:10px;position:relative}
 .card.active-staff{border-color:#5dcaa5;background:#e1f5ee}
-.card-name{font-size:14px;font-weight:500}
-.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500}
+.card-name{font-size:13px;font-weight:500}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:500}
 .badge.free{background:#e1f5ee;color:#0f6e56}
 .badge.busy{background:#faeeda;color:#854f0b}
 .badge.off{background:#f0f0f0;color:#888}
-.course-card{background:#fff;border:1px solid #ddd;border-radius:10px;padding:12px;margin-bottom:10px}
-.course-head{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
-.course-num{font-size:18px;font-weight:700;color:#222;min-width:28px}
-.time-block{font-size:13px;color:#666}
-.half-block{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.course-card{background:#fff;border:1px solid #ddd;border-radius:10px;padding:10px;margin-bottom:8px}
+.course-card.done-card{opacity:0.5}
+.course-head{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.course-num{font-size:16px;font-weight:700;min-width:24px}
+.half-block{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
 .half{background:#f9f9f9;border:1px solid #eee;border-radius:8px;padding:8px}
 .half-label{font-size:11px;color:#888;margin-bottom:4px;font-weight:500}
-.half-girls{display:flex;flex-wrap:wrap;gap:4px;min-height:24px}
-.girl-chip{display:flex;align-items:center;gap:4px;background:#fff;border:1px solid #ddd;border-radius:20px;padding:2px 8px;font-size:12px}
+.half-time{font-size:11px;color:#185fa5;margin-bottom:4px}
+.half-girls{display:flex;flex-wrap:wrap;gap:4px;min-height:22px}
+.girl-chip{display:flex;align-items:center;gap:3px;background:#fff;border:1px solid #ddd;border-radius:20px;padding:2px 7px;font-size:12px}
 .girl-chip .remove{cursor:pointer;color:#aaa;font-size:10px}
 .girl-chip .remove:hover{color:#a32d2d}
-.timeline{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-.tl-item{padding:4px 10px;border-radius:20px;font-size:12px;border:1px solid #ddd;background:#f9f9f9}
+.timeline{display:flex;gap:5px;flex-wrap:wrap}
+.tl-item{padding:3px 9px;border-radius:20px;font-size:12px;border:1px solid #ddd;background:#f9f9f9}
 .tl-item.done{background:#ffeaea;border-color:#f09595;color:#a32d2d;font-weight:500}
 .tl-item.soon{background:#faeeda;border-color:#ef9f27;color:#854f0b;font-weight:500}
 .tl-item.extended{background:#e1f5ee;border-color:#5dcaa5;color:#0f6e56;font-weight:500}
 .status-table{width:100%;border-collapse:collapse}
-.status-table th{text-align:left;font-size:12px;color:#888;font-weight:500;padding:6px 8px;border-bottom:1px solid #eee}
-.status-table td{padding:8px;border-bottom:1px solid #f0f0f0;font-size:13px;vertical-align:middle}
+.status-table th{text-align:left;font-size:12px;color:#888;font-weight:500;padding:5px 7px;border-bottom:1px solid #eee}
+.status-table td{padding:7px;border-bottom:1px solid #f0f0f0;font-size:12px;vertical-align:middle}
 .status-table tr:last-child td{border-bottom:none}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
-.modal{background:#fff;border-radius:12px;padding:20px;width:300px;max-width:92vw;max-height:80vh;overflow-y:auto}
-.modal h4{font-size:15px;font-weight:600;margin-bottom:14px}
+.modal{background:#fff;border-radius:12px;padding:18px;width:280px;max-width:92vw;max-height:80vh;overflow-y:auto}
+.modal h4{font-size:14px;font-weight:600;margin-bottom:12px}
 .modal label{font-size:12px;color:#666;display:block;margin-bottom:3px;margin-top:8px}
-.modal input,.modal select{width:100%;font-size:14px;padding:7px 10px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#222}
-.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
-.girl-check-list{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto;border:1px solid #eee;border-radius:6px;padding:8px}
-.girl-check-item{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
-.girl-check-item input{width:16px;height:16px;cursor:pointer}
+.modal input,.modal select{width:100%;font-size:13px;padding:6px 9px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#222}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.girl-check-list{display:flex;flex-direction:column;gap:5px;max-height:180px;overflow-y:auto;border:1px solid #eee;border-radius:6px;padding:7px}
+.girl-check-item{display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer}
+.girl-check-item input{width:15px;height:15px;cursor:pointer}
 .empty{text-align:center;padding:30px;color:#aaa;font-size:13px}
-.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px}
 .dot.free{background:#1d9e75}
 .dot.busy{background:#ef9f27}
-.dot.off{background:#ccc}
 </style>
 </head>
 <body>
@@ -72,11 +73,9 @@ body{font-family:sans-serif;background:#f5f5f5;color:#222;font-size:14px}
   <button class="shop-tab active" onclick="switchShop(0)" id="shopTab0">ANUBIS</button>
   <button class="shop-tab" onclick="switchShop(1)" id="shopTab1">BASTET</button>
 </div>
-
 <div id="shopPanel0"></div>
 <div id="shopPanel1" style="display:none"></div>
 
-<!-- モーダル：スタッフ追加 -->
 <div class="modal-overlay" id="modalAddStaff">
   <div class="modal">
     <h4>スタッフ追加</h4>
@@ -89,7 +88,6 @@ body{font-family:sans-serif;background:#f5f5f5;color:#222;font-size:14px}
   </div>
 </div>
 
-<!-- モーダル：コース作成 -->
 <div class="modal-overlay" id="modalAddCourse">
   <div class="modal">
     <h4>コース追加</h4>
@@ -107,7 +105,6 @@ body{font-family:sans-serif;background:#f5f5f5;color:#222;font-size:14px}
   </div>
 </div>
 
-<!-- モーダル：女の子アサイン -->
 <div class="modal-overlay" id="modalAssign">
   <div class="modal">
     <h4 id="modalAssignTitle">女の子をアサイン</h4>
@@ -119,7 +116,6 @@ body{font-family:sans-serif;background:#f5f5f5;color:#222;font-size:14px}
   </div>
 </div>
 
-<!-- モーダル：延長 -->
 <div class="modal-overlay" id="modalExtend">
   <div class="modal">
     <h4>延長</h4>
@@ -132,7 +128,6 @@ body{font-family:sans-serif;background:#f5f5f5;color:#222;font-size:14px}
   </div>
 </div>
 
-<!-- モーダル：時間編集 -->
 <div class="modal-overlay" id="modalEditTime">
   <div class="modal">
     <h4>スタート時間を編集</h4>
@@ -153,10 +148,10 @@ const shops=[
 let currentShop=0;
 let pendingShop=null,pendingCourseIdx=null,pendingHalf=null,pendingExtCourse=null,pendingEditCourse=null;
 
-function save(){localStorage.setItem('gbv2',JSON.stringify(shops.map(s=>({name:s.name,extOptions:s.extOptions,staff:s.staff,courses:s.courses,innerTab:s.innerTab||0}))))}
+function save(){localStorage.setItem('gbv3',JSON.stringify(shops.map(s=>({name:s.name,extOptions:s.extOptions,staff:s.staff,courses:s.courses,innerTab:s.innerTab||0}))))}
 function load(){
   try{
-    const d=JSON.parse(localStorage.getItem('gbv2'));
+    const d=JSON.parse(localStorage.getItem('gbv3'));
     if(d){d.forEach((s,i)=>{shops[i].staff=s.staff||[];shops[i].courses=s.courses||[];shops[i].innerTab=s.innerTab||0;});}
   }catch(e){}
 }
@@ -166,7 +161,6 @@ function toMins(t){if(!t)return 0;const[h,m]=t.split(':').map(Number);return h*6
 function toTime(m){return pad(Math.floor(((m%1440)+1440)%1440/60))+':'+pad(((m%1440)+1440)%1440%60)}
 function nowStr(){const n=new Date();return pad(n.getHours())+':'+pad(n.getMinutes())}
 function nowMins(){const n=new Date();return n.getHours()*60+n.getMinutes()}
-
 function tlClass(t){const diff=toMins(t)-nowMins();if(diff<=0)return'done';if(diff<=5)return'soon';return''}
 
 function getSchedule(course){
@@ -174,11 +168,11 @@ function getSchedule(course){
   const base=course.type;
   const ext=course.extended||0;
   const total=base+ext;
+  const change=toTime(sm+base/2);
   return{
-    change:toTime(sm+base/2),
+    change,
     extNeg:toTime(sm+base-5),
-    end:toTime(sm+total),
-    extEnd:ext>0?toTime(sm+total):null
+    end:toTime(sm+total)
   };
 }
 
@@ -189,37 +183,20 @@ function switchShop(i){
   document.getElementById('shopPanel1').style.display=i===1?'block':'none';
   renderShop(i);
 }
-
-function switchInnerTab(shopIdx,tab){
-  shops[shopIdx].innerTab=tab;
-  save();
-  renderShop(shopIdx);
-}
-
+function switchInnerTab(si,tab){shops[si].innerTab=tab;save();renderShop(si);}
 function openModal(id){document.getElementById(id).classList.add('open')}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 
-// スタッフ管理
 function confirmAddStaff(){
   const name=document.getElementById('inputStaffName').value.trim();
   if(!name)return;
   shops[currentShop].staff.push({name,working:false});
   save();renderShop(currentShop);closeModal('modalAddStaff');
 }
-function toggleWorking(si,idx){
-  shops[si].staff[idx].working=!shops[si].staff[idx].working;
-  save();renderShop(si);
-}
-function deleteStaff(si,idx){
-  shops[si].staff.splice(idx,1);
-  save();renderShop(si);
-}
+function toggleWorking(si,idx){shops[si].staff[idx].working=!shops[si].staff[idx].working;save();renderShop(si);}
+function deleteStaff(si,idx){shops[si].staff.splice(idx,1);save();renderShop(si);}
 
-// コース管理
-function openAddCourse(){
-  document.getElementById('inputCourseStart').value=nowStr();
-  openModal('modalAddCourse');
-}
+function openAddCourse(){document.getElementById('inputCourseStart').value=nowStr();openModal('modalAddCourse');}
 function confirmAddCourse(){
   const type=parseInt(document.getElementById('inputCourseType').value);
   const start=document.getElementById('inputCourseStart').value;
@@ -227,10 +204,9 @@ function confirmAddCourse(){
   shops[currentShop].courses.push({type,start,firstHalf:[],secondHalf:[],extended:0,done:false});
   save();renderShop(currentShop);closeModal('modalAddCourse');
 }
-function deleteCourse(si,ci){
-  shops[si].courses.splice(ci,1);
-  save();renderShop(si);
-}
+function deleteCourse(si,ci){shops[si].courses.splice(ci,1);save();renderShop(si);}
+function markDone(si,ci){shops[si].courses[ci].done=!shops[si].courses[ci].done;save();renderShop(si);}
+
 function openAssign(si,ci,half){
   pendingShop=si;pendingCourseIdx=ci;pendingHalf=half;
   const shop=shops[si];
@@ -239,8 +215,9 @@ function openAssign(si,ci,half){
   const already=half==='first'?course.firstHalf:course.secondHalf;
   document.getElementById('modalAssignTitle').textContent=half==='first'?'前半 — 女の子をアサイン':'後半 — 女の子をアサイン';
   const list=document.getElementById('girlCheckList');
-  if(working.length===0){list.innerHTML='<div style="color:#aaa;font-size:13px;padding:8px">出勤中のスタッフがいません</div>';}
-  else{list.innerHTML=working.map(s=>`<label class="girl-check-item"><input type="checkbox" value="${s.name}" ${already.includes(s.name)?'checked':''}> ${s.name}</label>`).join('');}
+  list.innerHTML=working.length===0
+    ?'<div style="color:#aaa;font-size:13px">出勤中のスタッフがいません</div>'
+    :working.map(s=>`<label class="girl-check-item"><input type="checkbox" value="${s.name}" ${already.includes(s.name)?'checked':''}> ${s.name}</label>`).join('');
   openModal('modalAssign');
 }
 function confirmAssign(){
@@ -250,11 +227,25 @@ function confirmAssign(){
   save();renderShop(pendingShop);closeModal('modalAssign');
 }
 function removeGirl(si,ci,half,name){
-  const course=shops[si].courses[ci];
-  if(half==='first')course.firstHalf=course.firstHalf.filter(n=>n!==name);
-  else course.secondHalf=course.secondHalf.filter(n=>n!==name);
+  const c=shops[si].courses[ci];
+  if(half==='first')c.firstHalf=c.firstHalf.filter(n=>n!==name);
+  else c.secondHalf=c.secondHalf.filter(n=>n!==name);
   save();renderShop(si);
 }
+
+function jonaiBtnClick(si,ci){
+  const course=shops[si].courses[ci];
+  if(course.firstHalf.length===0){alert('前半に女の子がいません');return;}
+  const hasSecond=course.secondHalf.length>0;
+  if(hasSecond){
+    if(!confirm('後半に既にアサインがあります。前半の子で上書きしますか？'))return;
+  }else{
+    if(!confirm('場内にします。前半の子をそのまま後半にセットします。'))return;
+  }
+  course.secondHalf=[...course.firstHalf];
+  save();renderShop(si);
+}
+
 function openExtend(si,ci){
   pendingShop=si;pendingExtCourse=ci;
   const sel=document.getElementById('inputExtend');
@@ -275,12 +266,7 @@ function confirmEditTime(){
   shops[pendingShop].courses[pendingEditCourse].start=document.getElementById('inputEditTime').value;
   save();renderShop(pendingShop);closeModal('modalEditTime');
 }
-function markDone(si,ci){
-  shops[si].courses[ci].done=!shops[si].courses[ci].done;
-  save();renderShop(si);
-}
 
-// レンダリング
 function renderShop(idx){
   const shop=shops[idx];
   const tab=shop.innerTab||0;
@@ -289,95 +275,87 @@ function renderShop(idx){
     <button class="inner-tab${tab===1?' active':''}" onclick="switchInnerTab(${idx},1)">コース</button>
     <button class="inner-tab${tab===2?' active':''}" onclick="switchInnerTab(${idx},2)">状況一覧</button>
   </div>`;
-
-  if(tab===0) html+=renderStaffTab(idx);
-  else if(tab===1) html+=renderCourseTab(idx);
+  if(tab===0)html+=renderStaffTab(idx);
+  else if(tab===1)html+=renderCourseTab(idx);
   else html+=renderStatusTab(idx);
-
   document.getElementById('shopPanel'+idx).innerHTML=html;
 }
 
 function renderStaffTab(idx){
   const shop=shops[idx];
   const working=shop.staff.filter(s=>s.working).length;
-  let html=`<div class="panel active"><div class="section-head"><span style="font-size:13px;color:#666">出勤中 ${working}人 / 全${shop.staff.length}人</span>
-    <button class="btn primary" onclick="document.getElementById('inputStaffName').value='';openModal('modalAddStaff')">＋ スタッフ追加</button></div>`;
+  let html=`<div class="panel active"><div class="section-head">
+    <span style="font-size:12px;color:#666">出勤中 ${working}人 / 全${shop.staff.length}人</span>
+    <button class="btn primary" onclick="document.getElementById('inputStaffName').value='';openModal('modalAddStaff')">＋ 追加</button>
+  </div>`;
   if(shop.staff.length===0){html+=`<div class="empty">スタッフを登録してください</div>`;}
   else{
     html+='<div class="grid">';
     shop.staff.forEach((s,si)=>{
       html+=`<div class="card${s.working?' active-staff':''}">
-        <button onclick="deleteStaff(${idx},${si})" style="position:absolute;top:6px;right:6px;border:none;background:transparent;cursor:pointer;color:#bbb;font-size:11px">✕</button>
-        <div class="card-name" style="margin-bottom:6px">${s.name}</div>
+        <button onclick="deleteStaff(${idx},${si})" style="position:absolute;top:5px;right:5px;border:none;background:transparent;cursor:pointer;color:#bbb;font-size:11px">✕</button>
+        <div class="card-name" style="margin-bottom:5px">${s.name}</div>
         <span class="badge ${s.working?'free':'off'}">${s.working?'出勤中':'休み'}</span><br>
-        <button class="btn" style="margin-top:8px;font-size:12px;width:100%" onclick="toggleWorking(${idx},${si})">${s.working?'退勤':'出勤'}</button>
+        <button class="btn" style="margin-top:7px;font-size:11px;width:100%" onclick="toggleWorking(${idx},${si})">${s.working?'退勤':'出勤'}</button>
       </div>`;
     });
     html+='</div>';
   }
-  html+='</div>';
-  return html;
+  return html+'</div>';
 }
 
 function renderCourseTab(idx){
   const shop=shops[idx];
   const active=shop.courses.filter(c=>!c.done);
-  const done=shop.courses.filter(c=>c.done);
-  let html=`<div class="panel active"><div class="section-head"><span style="font-size:13px;color:#666">進行中 ${active.length}本</span>
-    <button class="btn primary" onclick="openAddCourse()">＋ コース追加</button></div>`;
-
+  let html=`<div class="panel active"><div class="section-head">
+    <span style="font-size:12px;color:#666">進行中 ${active.length}本</span>
+    <button class="btn primary" onclick="openAddCourse()">＋ コース追加</button>
+  </div>`;
   if(shop.courses.length===0){html+=`<div class="empty">コースを追加してください</div>`;}
   else{
     shop.courses.forEach((c,ci)=>{
-      if(c.done)return;
       const sc=getSchedule(c);
-      const ext=c.extended>0?` +${c.extended}分延長`:'';
-      html+=`<div class="course-card">
+      const ext=c.extended>0?` +${c.extended}分`:'';
+      const firstTime=`${c.start} 〜 ${sc.change}`;
+      const secondTime=`${sc.change} 〜 ${sc.end}`;
+      html+=`<div class="course-card${c.done?' done-card':''}">
         <div class="course-head">
           <span class="course-num">#${ci+1}</span>
-          <span style="background:#f0f0f0;border-radius:20px;padding:3px 10px;font-size:12px">${c.type}分${ext}</span>
-          <span class="time-block">開始 <strong>${c.start}</strong> → 終了 <strong>${sc.end}</strong></span>
-          <button class="btn" style="font-size:11px;padding:3px 8px;margin-left:auto" onclick="openEditTime(${idx},${ci})">時間編集</button>
-          <button class="btn warn" style="font-size:11px;padding:3px 8px" onclick="openExtend(${idx},${ci})">延長</button>
-          <button class="btn danger" style="font-size:11px;padding:3px 8px" onclick="markDone(${idx},${ci})">終了</button>
-          <button class="btn" style="font-size:11px;padding:3px 8px" onclick="deleteCourse(${idx},${ci})">削除</button>
+          <span style="background:#f0f0f0;border-radius:20px;padding:2px 9px;font-size:11px">${c.type}分${ext}</span>
+          <span style="font-size:12px;color:#666">${c.start} → ${sc.end}</span>
+          <div style="display:flex;gap:4px;margin-left:auto;flex-wrap:wrap">
+            <button class="btn" style="font-size:11px;padding:2px 7px" onclick="openEditTime(${idx},${ci})">時間編集</button>
+            <button class="btn info" style="font-size:11px;padding:2px 7px" onclick="jonaiBtnClick(${idx},${ci})">場内</button>
+            <button class="btn warn" style="font-size:11px;padding:2px 7px" onclick="openExtend(${idx},${ci})">延長</button>
+            <button class="btn danger" style="font-size:11px;padding:2px 7px" onclick="markDone(${idx},${ci})">${c.done?'復元':'終了'}</button>
+            <button class="btn" style="font-size:11px;padding:2px 7px" onclick="deleteCourse(${idx},${ci})">削除</button>
+          </div>
         </div>
         <div class="half-block">
           <div class="half">
             <div class="half-label">前半</div>
+            <div class="half-time">${firstTime}</div>
             <div class="half-girls">${c.firstHalf.map(n=>`<span class="girl-chip">${n}<span class="remove" onclick="removeGirl(${idx},${ci},'first','${n}')">✕</span></span>`).join('')}
-            <button class="btn" style="font-size:11px;padding:2px 8px" onclick="openAssign(${idx},${ci},'first')">＋</button></div>
+            <button class="btn" style="font-size:10px;padding:1px 6px" onclick="openAssign(${idx},${ci},'first')">＋</button></div>
           </div>
           <div class="half">
             <div class="half-label">後半</div>
+            <div class="half-time">${secondTime}</div>
             <div class="half-girls">${c.secondHalf.map(n=>`<span class="girl-chip">${n}<span class="remove" onclick="removeGirl(${idx},${ci},'second','${n}')">✕</span></span>`).join('')}
-            <button class="btn" style="font-size:11px;padding:2px 8px" onclick="openAssign(${idx},${ci},'second')">＋</button></div>
+            <button class="btn" style="font-size:10px;padding:1px 6px" onclick="openAssign(${idx},${ci},'second')">＋</button></div>
           </div>
         </div>
         <div class="timeline">
           <span class="tl-item ${tlClass(sc.change)}">場内/チェンジ ${sc.change}</span>
           <span class="tl-item ${tlClass(sc.extNeg)}">延長交渉 ${sc.extNeg}</span>
-          ${c.extended>0?`<span class="tl-item extended">延長終了 ${sc.end}</span>`:`<span class="tl-item ${tlClass(sc.end)}">終了 ${sc.end}</span>`}
+          ${c.extended>0
+            ?`<span class="tl-item extended">延長終了 ${sc.end}</span>`
+            :`<span class="tl-item ${tlClass(sc.end)}">終了 ${sc.end}</span>`}
         </div>
       </div>`;
     });
-    if(done.length>0){
-      html+=`<div style="font-size:12px;color:#aaa;margin:12px 0 6px">終了済み</div>`;
-      done.forEach((c,ci)=>{
-        const realIdx=shop.courses.indexOf(c);
-        html+=`<div class="course-card" style="opacity:0.5">
-          <div class="course-head">
-            <span class="course-num" style="color:#aaa">#${realIdx+1}</span>
-            <span style="font-size:12px;color:#aaa">${c.type}分 / ${c.start}〜</span>
-            <button class="btn" style="font-size:11px;padding:3px 8px;margin-left:auto" onclick="markDone(${idx},${realIdx})">復元</button>
-            <button class="btn danger" style="font-size:11px;padding:3px 8px" onclick="deleteCourse(${idx},${realIdx})">削除</button>
-          </div>
-        </div>`;
-      });
-    }
   }
-  html+='</div>';
-  return html;
+  return html+'</div>';
 }
 
 function renderStatusTab(idx){
@@ -390,16 +368,17 @@ function renderStatusTab(idx){
       <th>名前</th><th>状況</th><th>コース</th><th>抜け時間</th>
     </tr></thead><tbody>`;
     working.forEach(s=>{
-      const activeCourses=shop.courses.filter(c=>!c.done&&(c.firstHalf.includes(s.name)||c.secondHalf.includes(s.name)));
-      if(activeCourses.length===0){
+      const ac=shop.courses.filter(c=>!c.done&&(c.firstHalf.includes(s.name)||c.secondHalf.includes(s.name)));
+      if(ac.length===0){
         html+=`<tr><td><span class="dot free"></span>${s.name}</td><td><span class="badge free">空き</span></td><td>—</td><td>—</td></tr>`;
       }else{
-        activeCourses.forEach((c,i)=>{
+        ac.forEach((c,i)=>{
           const sc=getSchedule(c);
           const ci=shop.courses.indexOf(c);
-          const half=c.firstHalf.includes(s.name)&&c.secondHalf.includes(s.name)?'前半/後半':c.firstHalf.includes(s.name)?'前半':'後半';
-          const isChange=half==='前半';
-          const leaveTime=isChange?sc.change:sc.end;
+          const inFirst=c.firstHalf.includes(s.name);
+          const inSecond=c.secondHalf.includes(s.name);
+          const half=inFirst&&inSecond?'前半/後半':inFirst?'前半':'後半';
+          const leaveTime=inFirst&&!inSecond?sc.change:sc.end;
           const lc=tlClass(leaveTime);
           html+=`<tr>
             <td>${i===0?`<span class="dot busy"></span>${s.name}`:''}</td>
@@ -412,12 +391,10 @@ function renderStatusTab(idx){
     });
     html+=`</tbody></table>`;
   }
-  html+='</div>';
-  return html;
+  return html+'</div>';
 }
 
 document.getElementById('inputStaffName').addEventListener('keydown',e=>{if(e.key==='Enter')confirmAddStaff()});
-
 load();
 renderShop(0);
 renderShop(1);
