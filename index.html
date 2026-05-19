@@ -21,7 +21,7 @@ body{font-family:sans-serif;background:#f5f5f5;color:#222;font-size:14px}
 .btn.danger{background:#ffeaea;color:#a32d2d;border-color:#f09595}
 .btn.warn{background:#faeeda;color:#854f0b;border-color:#ef9f27}
 .btn.info{background:#e6f1fb;color:#185fa5;border-color:#85b7eb}
-.btn.copy{background:#f5f0ff;color:#5b21b6;border-color:#c4b5fd}
+.btn.linked{background:#f5f0ff;color:#5b21b6;border-color:#c4b5fd}
 .section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
 .card{background:#fff;border:1px solid #ddd;border-radius:10px;padding:10px;position:relative}
@@ -38,7 +38,7 @@ body{font-family:sans-serif;background:#f5f5f5;color:#222;font-size:14px}
 .half-block{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
 .half{background:#f9f9f9;border:1px solid #eee;border-radius:8px;padding:8px}
 .half-label{font-size:11px;color:#888;margin-bottom:4px;font-weight:500}
-.half-time{font-size:11px;color:#185fa5;margin-bottom:4px}
+.half-time{font-size:11px;color:#185fa5;margin-bottom:4px;display:flex;align-items:center;gap:4px}
 .half-girls{display:flex;flex-wrap:wrap;gap:4px;min-height:22px}
 .girl-chip{display:flex;align-items:center;gap:3px;background:#fff;border:1px solid #ddd;border-radius:20px;padding:2px 7px;font-size:12px}
 .girl-chip .remove{cursor:pointer;color:#aaa;font-size:10px}
@@ -51,11 +51,14 @@ body{font-family:sans-serif;background:#f5f5f5;color:#222;font-size:14px}
 .copy-btn{padding:2px 8px;font-size:11px;border:1px solid #c4b5fd;border-radius:20px;cursor:pointer;background:#f5f0ff;color:#5b21b6}
 .copy-btn:hover{background:#ede9fe}
 .copy-btn.copied{background:#e1f5ee;color:#0f6e56;border-color:#5dcaa5}
+.edit-time-btn{padding:1px 6px;font-size:10px;border:1px solid #ddd;border-radius:20px;cursor:pointer;background:#fff;color:#888}
+.edit-time-btn:hover{background:#f0f0f0}
 .status-table{width:100%;border-collapse:collapse}
 .status-table th{text-align:left;font-size:12px;color:#888;font-weight:500;padding:5px 7px;border-bottom:1px solid #eee}
 .status-table td{padding:7px;border-bottom:1px solid #f0f0f0;font-size:12px;vertical-align:middle}
 .status-table tr:last-child td{border-bottom:none}
 .overlap-badge{display:inline-block;padding:1px 6px;border-radius:20px;font-size:11px;background:#ffeaea;color:#a32d2d;border:1px solid #f09595;margin-left:4px}
+.count-badge{display:inline-block;padding:1px 7px;border-radius:20px;font-size:11px;background:#e6f1fb;color:#185fa5;border:1px solid #85b7eb;margin-left:4px}
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:200;align-items:center;justify-content:center}
 .modal-overlay.open{display:flex}
 .modal{background:#fff;border-radius:12px;padding:18px;width:300px;max-width:92vw;max-height:80vh;overflow-y:auto}
@@ -73,6 +76,7 @@ body{font-family:sans-serif;background:#f5f5f5;color:#222;font-size:14px}
 .dot.busy{background:#ef9f27}
 .shift-result{margin-top:10px;font-size:12px;color:#0f6e56;background:#e1f5ee;border-radius:6px;padding:8px}
 .shift-error{margin-top:10px;font-size:12px;color:#a32d2d;background:#ffeaea;border-radius:6px;padding:8px}
+.link-row{display:flex;align-items:center;gap:8px;margin:8px 0;padding:6px 8px;background:#f5f0ff;border-radius:6px;font-size:12px;color:#5b21b6}
 </style>
 </head>
 <body>
@@ -149,14 +153,20 @@ body{font-family:sans-serif;background:#f5f5f5;color:#222;font-size:14px}
   </div>
 </div>
 
-<div class="modal-overlay" id="modalEditTime">
+<div class="modal-overlay" id="modalEditHalfTime">
   <div class="modal">
-    <h4>スタート時間を編集</h4>
-    <label>スタート時間</label>
-    <input id="inputEditTime" type="time" />
+    <h4 id="editHalfTitle">時間編集</h4>
+    <label id="editHalfLabel1">前半終了時間</label>
+    <input id="inputFirstEnd" type="time" />
+    <label id="editHalfLabel2">後半終了時間</label>
+    <input id="inputSecondEnd" type="time" />
+    <div class="link-row">
+      <input type="checkbox" id="linkHalves" style="width:15px;height:15px">
+      <label for="linkHalves" style="margin:0;color:#5b21b6;cursor:pointer">前半終了を後半スタートに連動</label>
+    </div>
     <div class="modal-btns">
-      <button class="btn" onclick="closeModal('modalEditTime')">キャンセル</button>
-      <button class="btn primary" onclick="confirmEditTime()">更新</button>
+      <button class="btn" onclick="closeModal('modalEditHalfTime')">キャンセル</button>
+      <button class="btn primary" onclick="confirmEditHalfTime()">更新</button>
     </div>
   </div>
 </div>
@@ -169,11 +179,16 @@ const shops=[
 let currentShop=0;
 let pendingShop=null,pendingCourseIdx=null,pendingHalf=null,pendingExtCourse=null,pendingEditCourse=null;
 
-function save(){localStorage.setItem('gbv3',JSON.stringify(shops.map(s=>({name:s.name,extOptions:s.extOptions,staff:s.staff,courses:s.courses,innerTab:s.innerTab||0}))))}
+function save(){localStorage.setItem('gbv4',JSON.stringify(shops.map(s=>({name:s.name,extOptions:s.extOptions,staff:s.staff,courses:s.courses,innerTab:s.innerTab||0}))))}
 function load(){
   try{
-    const d=JSON.parse(localStorage.getItem('gbv3'));
+    const d=JSON.parse(localStorage.getItem('gbv4'));
     if(d){d.forEach((s,i)=>{shops[i].staff=s.staff||[];shops[i].courses=s.courses||[];shops[i].innerTab=s.innerTab||0;});}
+    // 旧データ移行
+    if(!d){
+      const old=JSON.parse(localStorage.getItem('gbv3'));
+      if(old){old.forEach((s,i)=>{shops[i].staff=s.staff||[];shops[i].courses=s.courses||[];shops[i].innerTab=s.innerTab||0;});}
+    }
   }catch(e){}
 }
 
@@ -185,45 +200,23 @@ function nowMins(){const n=new Date();return n.getHours()*60+n.getMinutes()}
 function tlClass(t){const diff=toMins(t)-nowMins();if(diff<=0)return'done';if(diff<=5)return'soon';return''}
 
 function shiftTimeToHHMM(t){
-  // 20.5 -> 20:30, 21 -> 21:00, 23.5 -> 23:30
   t=String(t).trim();
-  if(t.includes('.')){
-    const[h,d]=t.split('.');
-    const m=d==='5'?30:0;
-    return pad(parseInt(h))+':'+pad(m);
-  }
+  if(t.includes('.')){const[h,d]=t.split('.');return pad(parseInt(h))+':'+(d==='5'?'30':'00');}
   return pad(parseInt(t))+':00';
 }
 
 function parseShift(text){
   const lines=text.split('\n');
-  const results=[];
-  const errors=[];
+  const results=[],errors=[];
   for(let line of lines){
     line=line.trim();
-    if(!line||/^\d+\//.test(line)||/^[（(]/.test(line))continue;
-    // 名前と時間を分離 (スペース複数で区切られてる)
-    const match=line.match(/^(.+?)\s{2,}(.+)$/);
-    if(!match){
-      // スペース1つでも試みる
-      const m2=line.match(/^(.+?)\s+(\d[\d.]*.*)$/);
-      if(!m2){errors.push(line);continue;}
-      const name=m2[1].trim();
-      const timePart=m2[2].trim();
-      const tMatch=timePart.match(/^([\d.]+)(?:-([\d.]+)?)?$/);
-      if(!tMatch){errors.push(line);continue;}
-      const start=shiftTimeToHHMM(tMatch[1]);
-      const end=tMatch[2]?shiftTimeToHHMM(tMatch[2]):null;
-      results.push({name,start,end});
-      continue;
-    }
+    if(!line||/^\d+\//.test(line))continue;
+    const match=line.match(/^(.+?)\s{2,}(.+)$/)||line.match(/^(.+?)\s+(\d[\d.].*)$/);
+    if(!match){errors.push(line);continue;}
     const name=match[1].trim();
-    const timePart=match[2].trim();
-    const tMatch=timePart.match(/^([\d.]+)(?:-([\d.]+)?)?$/);
+    const tMatch=match[2].trim().match(/^([\d.]+)(?:-([\d.]+)?)?$/);
     if(!tMatch){errors.push(line);continue;}
-    const start=shiftTimeToHHMM(tMatch[1]);
-    const end=tMatch[2]?shiftTimeToHHMM(tMatch[2]):null;
-    results.push({name,start,end});
+    results.push({name,start:shiftTimeToHHMM(tMatch[1]),end:tMatch[2]?shiftTimeToHHMM(tMatch[2]):null});
   }
   return{results,errors};
 }
@@ -232,26 +225,14 @@ function confirmShiftImport(){
   const text=document.getElementById('inputShiftText').value;
   const{results,errors}=parseShift(text);
   const shop=shops[currentShop];
-
   results.forEach(r=>{
     const existing=shop.staff.find(s=>s.name===r.name);
-    if(existing){
-      existing.working=true;
-      existing.shiftStart=r.start;
-      existing.shiftEnd=r.end;
-    }else{
-      shop.staff.push({name:r.name,working:true,shiftStart:r.start,shiftEnd:r.end});
-    }
+    if(existing){existing.working=true;existing.shiftStart=r.start;existing.shiftEnd=r.end;}
+    else shop.staff.push({name:r.name,working:true,shiftStart:r.start,shiftEnd:r.end});
   });
-
-  const resultDiv=document.getElementById('shiftResult');
-  if(results.length>0){
-    resultDiv.innerHTML=`<div class="shift-result">✓ ${results.map(r=>r.name).join('、')} を読み込みました</div>`;
-  }
-  if(errors.length>0){
-    resultDiv.innerHTML+=`<div class="shift-error">読み取れなかった行: ${errors.join('、')}</div>`;
-  }
-
+  const div=document.getElementById('shiftResult');
+  div.innerHTML=(results.length>0?`<div class="shift-result">✓ ${results.map(r=>r.name).join('、')} を読み込みました</div>`:'')
+    +(errors.length>0?`<div class="shift-error">読み取れなかった行: ${errors.join('、')}</div>`:'');
   save();renderShop(currentShop);
   setTimeout(()=>closeModal('modalShiftImport'),1200);
 }
@@ -261,11 +242,10 @@ function getSchedule(course){
   const base=course.type;
   const ext=course.extended||0;
   const total=base+ext;
-  return{
-    change:toTime(sm+base/2),
-    extNeg:toTime(sm+base-5),
-    end:toTime(sm+total)
-  };
+  const change=course.firstEndOverride||toTime(sm+base/2);
+  const end=course.secondEndOverride||toTime(sm+total);
+  const secondStart=course.secondStartOverride||change;
+  return{change,extNeg:toTime(toMins(end)-5),end,secondStart};
 }
 
 function getStaffRange(course,name){
@@ -274,31 +254,22 @@ function getStaffRange(course,name){
   const inSecond=course.secondHalf.includes(name);
   if(inFirst&&inSecond)return{start:course.start,end:sc.end};
   if(inFirst)return{start:course.start,end:sc.change};
-  if(inSecond)return{start:sc.change,end:sc.end};
+  if(inSecond)return{start:sc.secondStart,end:sc.end};
   return null;
 }
 
 function hasOverlap(courses,name){
-  const ranges=courses
-    .filter(c=>!c.done)
-    .map(c=>getStaffRange(c,name))
-    .filter(Boolean)
-    .map(r=>({s:toMins(r.start),e:toMins(r.end)}));
-  for(let i=0;i<ranges.length;i++){
-    for(let j=i+1;j<ranges.length;j++){
-      if(ranges[i].s<ranges[j].e&&ranges[j].s<ranges[i].e)return true;
-    }
-  }
+  const ranges=courses.filter(c=>!c.done).map(c=>getStaffRange(c,name)).filter(Boolean).map(r=>({s:toMins(r.start),e:toMins(r.end)}));
+  for(let i=0;i<ranges.length;i++)for(let j=i+1;j<ranges.length;j++)if(ranges[i].s<ranges[j].e&&ranges[j].s<ranges[i].e)return true;
   return false;
 }
 
-function makeCopyText(type,names,time1,time2){
-  const from=toTime(toMins(time1));
-  const to=toTime(toMins(time2));
-  const nameStr=names.join('・')+'さん';
-  if(type==='change')return`${from}-${to}で${nameStr}場内交渉お願いします`;
-  if(type==='extend')return`${from}-${to}で${nameStr}延長交渉お願いします`;
-  return'';
+function countCourses(courses,name){
+  return courses.filter(c=>c.firstHalf.includes(name)||c.secondHalf.includes(name)).length;
+}
+
+function makeCopyText(type,names,t1,t2){
+  return`${toTime(toMins(t1))}-${toTime(toMins(t2))}で${names.join('・')}さん${type==='change'?'場内':'延長'}交渉お願いします`;
 }
 
 function copyText(text,btnId){
@@ -338,7 +309,7 @@ function confirmAddCourse(){
   const type=parseInt(document.getElementById('inputCourseType').value);
   const start=document.getElementById('inputCourseStart').value;
   if(!start)return;
-  shops[currentShop].courses.push({type,start,firstHalf:[],secondHalf:[],extended:0,done:false});
+  shops[currentShop].courses.push({type,start,firstHalf:[],secondHalf:[],extended:0,done:false,firstEndOverride:null,secondEndOverride:null,secondStartOverride:null});
   save();renderShop(currentShop);closeModal('modalAddCourse');
 }
 function deleteCourse(si,ci){shops[si].courses.splice(ci,1);save();renderShop(si);}
@@ -372,16 +343,14 @@ function removeGirl(si,ci,half,name){
 function jonaiBtnClick(si,ci){
   const course=shops[si].courses[ci];
   if(course.firstHalf.length===0){alert('前半に女の子がいません');return;}
-  const hasSecond=course.secondHalf.length>0;
-  if(hasSecond){if(!confirm('後半に既にアサインがあります。前半の子で上書きしますか？'))return;}
+  if(course.secondHalf.length>0){if(!confirm('後半に既にアサインがあります。前半の子で上書きしますか？'))return;}
   else{if(!confirm('場内にします。前半の子をそのまま後半にセットします。'))return;}
   course.secondHalf=[...course.firstHalf];
   save();renderShop(si);
 }
 function openExtend(si,ci){
   pendingShop=si;pendingExtCourse=ci;
-  const sel=document.getElementById('inputExtend');
-  sel.innerHTML=shops[si].extOptions.map(o=>`<option value="${o}">${o}分延長</option>`).join('');
+  document.getElementById('inputExtend').innerHTML=shops[si].extOptions.map(o=>`<option value="${o}">${o}分延長</option>`).join('');
   openModal('modalExtend');
 }
 function confirmExtend(){
@@ -389,14 +358,26 @@ function confirmExtend(){
   shops[pendingShop].courses[pendingExtCourse].extended=(shops[pendingShop].courses[pendingExtCourse].extended||0)+mins;
   save();renderShop(pendingShop);closeModal('modalExtend');
 }
-function openEditTime(si,ci){
+
+function openEditHalfTime(si,ci){
   pendingShop=si;pendingEditCourse=ci;
-  document.getElementById('inputEditTime').value=shops[si].courses[ci].start;
-  openModal('modalEditTime');
+  const c=shops[si].courses[ci];
+  const sc=getSchedule(c);
+  document.getElementById('inputFirstEnd').value=sc.change;
+  document.getElementById('inputSecondEnd').value=sc.end;
+  document.getElementById('linkHalves').checked=false;
+  openModal('modalEditHalfTime');
 }
-function confirmEditTime(){
-  shops[pendingShop].courses[pendingEditCourse].start=document.getElementById('inputEditTime').value;
-  save();renderShop(pendingShop);closeModal('modalEditTime');
+function confirmEditHalfTime(){
+  const c=shops[pendingShop].courses[pendingEditCourse];
+  const firstEnd=document.getElementById('inputFirstEnd').value;
+  const secondEnd=document.getElementById('inputSecondEnd').value;
+  const linked=document.getElementById('linkHalves').checked;
+  c.firstEndOverride=firstEnd;
+  c.secondEndOverride=secondEnd;
+  if(linked)c.secondStartOverride=firstEnd;
+  else c.secondStartOverride=null;
+  save();renderShop(pendingShop);closeModal('modalEditHalfTime');
 }
 
 function renderShop(idx){
@@ -453,13 +434,9 @@ function renderCourseTab(idx){
       const sc=getSchedule(c);
       const ext=c.extended>0?` +${c.extended}分`:'';
       const firstTime=`${c.start} 〜 ${sc.change}`;
-      const secondTime=`${sc.change} 〜 ${sc.end}`;
-      const firstNames=c.firstHalf.length>0?c.firstHalf:null;
-      const secondNames=c.secondHalf.length>0?c.secondHalf:null;
-      const changeFrom=toTime(toMins(sc.change)-5);
-      const extNegFrom=toTime(toMins(sc.extNeg)-5);
-      const changeCopyText=firstNames?makeCopyText('change',firstNames,changeFrom,sc.change):'';
-      const extCopyText=secondNames?makeCopyText('extend',secondNames,extNegFrom,sc.extNeg):'';
+      const secondTime=`${sc.secondStart} 〜 ${sc.end}`;
+      const changeCopyText=c.firstHalf.length>0?makeCopyText('change',c.firstHalf,toTime(toMins(sc.change)-5),sc.change):'';
+      const extCopyText=c.secondHalf.length>0?makeCopyText('extend',c.secondHalf,toTime(toMins(sc.end)-10),toTime(toMins(sc.end)-5)):'';
       const changeBtnId=`copyChange_${idx}_${ci}`;
       const extBtnId=`copyExt_${idx}_${ci}`;
       html+=`<div class="course-card${c.done?' done-card':''}">
@@ -468,7 +445,7 @@ function renderCourseTab(idx){
           <span style="background:#f0f0f0;border-radius:20px;padding:2px 9px;font-size:11px">${c.type}分${ext}</span>
           <span style="font-size:12px;color:#666">${c.start} → ${sc.end}</span>
           <div style="display:flex;gap:4px;margin-left:auto;flex-wrap:wrap">
-            <button class="btn" style="font-size:11px;padding:2px 7px" onclick="openEditTime(${idx},${ci})">時間編集</button>
+            <button class="btn" style="font-size:11px;padding:2px 7px" onclick="openEditHalfTime(${idx},${ci})">時間編集</button>
             <button class="btn info" style="font-size:11px;padding:2px 7px" onclick="jonaiBtnClick(${idx},${ci})">場内</button>
             <button class="btn warn" style="font-size:11px;padding:2px 7px" onclick="openExtend(${idx},${ci})">延長</button>
             <button class="btn danger" style="font-size:11px;padding:2px 7px" onclick="markDone(${idx},${ci})">${c.done?'復元':'終了'}</button>
@@ -494,9 +471,7 @@ function renderCourseTab(idx){
           ${changeCopyText?`<button class="copy-btn" id="${changeBtnId}" onclick="copyText('${changeCopyText}','${changeBtnId}')">コピー</button>`:''}
           <span class="tl-item ${tlClass(sc.extNeg)}">延長交渉 ${sc.extNeg}</span>
           ${extCopyText?`<button class="copy-btn" id="${extBtnId}" onclick="copyText('${extCopyText}','${extBtnId}')">コピー</button>`:''}
-          ${c.extended>0
-            ?`<span class="tl-item extended">延長終了 ${sc.end}</span>`
-            :`<span class="tl-item ${tlClass(sc.end)}">終了 ${sc.end}</span>`}
+          ${c.extended>0?`<span class="tl-item extended">延長終了 ${sc.end}</span>`:`<span class="tl-item ${tlClass(sc.end)}">終了 ${sc.end}</span>`}
         </div>
       </div>`;
     });
@@ -511,14 +486,16 @@ function renderStatusTab(idx){
   if(working.length===0){html+=`<div class="empty">出勤中のスタッフがいません</div>`;}
   else{
     html+=`<table class="status-table"><thead><tr>
-      <th>名前</th><th>状況</th><th>コース</th><th>時間</th>
+      <th>名前</th><th>本数</th><th>状況</th><th>コース</th><th>時間</th>
     </tr></thead><tbody>`;
     working.forEach(s=>{
       const ac=shop.courses.filter(c=>!c.done&&(c.firstHalf.includes(s.name)||c.secondHalf.includes(s.name)));
+      const total=countCourses(shop.courses,s.name);
       const overlap=hasOverlap(shop.courses,s.name);
       const overlapBadge=overlap?`<span class="overlap-badge">⚠ 重複</span>`:'';
+      const countBadge=`<span class="count-badge">${total}本</span>`;
       if(ac.length===0){
-        html+=`<tr><td><span class="dot free"></span>${s.name}${overlapBadge}</td><td><span class="badge free">空き</span></td><td>—</td><td>—</td></tr>`;
+        html+=`<tr><td><span class="dot free"></span>${s.name}${overlapBadge}</td><td>${countBadge}</td><td><span class="badge free">空き</span></td><td>—</td><td>—</td></tr>`;
       }else{
         ac.forEach((c,i)=>{
           const ci=shop.courses.indexOf(c);
@@ -530,6 +507,7 @@ function renderStatusTab(idx){
           const lc=leaveTime!=='—'?tlClass(leaveTime):'';
           html+=`<tr>
             <td>${i===0?`<span class="dot busy"></span>${s.name}${overlapBadge}`:''}</td>
+            <td>${i===0?countBadge:''}</td>
             <td><span class="badge busy">${half}</span></td>
             <td>#${ci+1} ${c.type}分</td>
             <td style="font-size:12px;${lc==='done'?'color:#a32d2d;font-weight:500':lc==='soon'?'color:#ba7517;font-weight:500':''}">
