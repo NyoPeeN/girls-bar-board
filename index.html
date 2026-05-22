@@ -39,8 +39,6 @@ body{font-family:sans-serif;background:#f5f5f5;color:#222;font-size:14px}
 .half-label{font-size:11px;color:#888;margin-bottom:4px;font-weight:500}
 .half-time-row{display:flex;align-items:center;gap:4px;margin-bottom:4px;flex-wrap:wrap}
 .half-time{font-size:11px;color:#185fa5}
-.tedit{padding:1px 5px;font-size:10px;border:1px solid #ddd;border-radius:10px;cursor:pointer;background:#fff;color:#888;white-space:nowrap}
-.tedit:hover{background:#f0f0f0}
 .half-girls{display:flex;flex-wrap:wrap;gap:4px;min-height:22px}
 .girl-chip{display:flex;align-items:center;gap:3px;background:#fff;border:1px solid #ddd;border-radius:20px;padding:2px 7px;font-size:12px}
 .girl-chip .remove{cursor:pointer;color:#aaa;font-size:10px}
@@ -78,6 +76,9 @@ body{font-family:sans-serif;background:#f5f5f5;color:#222;font-size:14px}
 .shift-error{margin-top:10px;font-size:12px;color:#a32d2d;background:#ffeaea;border-radius:6px;padding:8px}
 .link-row{display:flex;align-items:center;gap:8px;margin:8px 0;padding:6px 8px;background:#f5f0ff;border-radius:6px;font-size:12px;color:#5b21b6}
 .divider{height:1px;background:#eee;margin:10px 0}
+.toggle-done-btn{font-size:11px;padding:3px 10px;border:1px solid #ddd;border-radius:20px;cursor:pointer;background:#fff;color:#888}
+.toggle-done-btn:hover{background:#f0f0f0}
+.toggle-done-btn.active{background:#f0f0f0;color:#222;border-color:#bbb}
 </style>
 </head>
 <body>
@@ -156,7 +157,7 @@ body{font-family:sans-serif;background:#f5f5f5;color:#222;font-size:14px}
 
 <div class="modal-overlay" id="modalEditTime">
   <div class="modal">
-    <h4 id="editTimeTitle">時間編集</h4>
+    <h4>時間編集</h4>
     <label>前半 開始</label>
     <input id="inputFirstStart" type="time" />
     <label>前半 終了</label>
@@ -179,26 +180,35 @@ body{font-family:sans-serif;background:#f5f5f5;color:#222;font-size:14px}
 
 <script>
 const shops=[
-  {name:'ANUBIS',extOptions:[20,40],staff:[],courses:[],innerTab:0},
-  {name:'BASTET',extOptions:[30,60],staff:[],courses:[],innerTab:0}
+  {name:'ANUBIS',extOptions:[20,40],staff:[],courses:[],innerTab:0,showDone:false},
+  {name:'BASTET',extOptions:[30,60],staff:[],courses:[],innerTab:0,showDone:false}
 ];
 let currentShop=0;
 let pendingShop=null,pendingCourseIdx=null,pendingHalf=null,pendingExtCourse=null,pendingEditCourse=null;
 
-function save(){localStorage.setItem('gbv4',JSON.stringify(shops.map(s=>({name:s.name,extOptions:s.extOptions,staff:s.staff,courses:s.courses,innerTab:s.innerTab||0}))))}
+function save(){localStorage.setItem('gbv4',JSON.stringify(shops.map(s=>({name:s.name,extOptions:s.extOptions,staff:s.staff,courses:s.courses,innerTab:s.innerTab||0,showDone:s.showDone||false}))))}
 function load(){
   try{
     const d=JSON.parse(localStorage.getItem('gbv4'));
-    if(d){d.forEach((s,i)=>{shops[i].staff=s.staff||[];shops[i].courses=s.courses||[];shops[i].innerTab=s.innerTab||0;});}
+    if(d){d.forEach((s,i)=>{shops[i].staff=s.staff||[];shops[i].courses=s.courses||[];shops[i].innerTab=s.innerTab||0;shops[i].showDone=s.showDone||false;});}
   }catch(e){}
 }
 
 function pad(n){return String(n).padStart(2,'0')}
 function toMins(t){if(!t)return 0;const[h,m]=t.split(':').map(Number);return h*60+m}
 function toTime(m){return pad(Math.floor(((m%1440)+1440)%1440/60))+':'+pad(((m%1440)+1440)%1440%60)}
+function getMins(t){return toMins(t)%60}
 function nowStr(){const n=new Date();return pad(n.getHours())+':'+pad(n.getMinutes())}
 function nowMins(){const n=new Date();return n.getHours()*60+n.getMinutes()}
 function tlClass(t){const diff=toMins(t)-nowMins();if(diff<=0)return'done';if(diff<=5)return'soon';return''}
+
+function sortedStaff(staff){
+  return [...staff].sort((a,b)=>{
+    const as=toMins(a.shiftStart||'99:99'),bs=toMins(b.shiftStart||'99:99');
+    if(as!==bs)return as-bs;
+    return toMins(a.shiftEnd||'99:99')-toMins(b.shiftEnd||'99:99');
+  });
+}
 
 function shiftTimeToHHMM(t){
   t=String(t).trim();
@@ -243,26 +253,38 @@ function getSchedule(c){
   const firstEnd=c.firstEnd||defChange;
   const secondStart=c.secondStart||defChange;
   const secondEnd=c.secondEnd||defEnd;
-  return{firstStart,firstEnd,secondStart,secondEnd,extNeg:toTime(toMins(secondEnd)-5)};
+  return{firstStart,firstEnd,secondStart,secondEnd};
 }
 
-function getStaffRange(c,name){
+// コピーテキスト生成
+function makeCopyText(type,names,c){
   const sc=getSchedule(c);
-  const inFirst=c.firstHalf.includes(name);
-  const inSecond=c.secondHalf.includes(name);
-  if(inFirst&&inSecond)return{start:sc.firstStart,end:sc.secondEnd};
-  if(inFirst)return{start:sc.firstStart,end:sc.firstEnd};
-  if(inSecond)return{start:sc.secondStart,end:sc.secondEnd};
-  return null;
+  const nameStr=names.join('・')+'さん';
+  const firstEndMins=pad(getMins(sc.firstEnd));
+  const secondEndMins=pad(getMins(sc.secondEnd));
+  const secondEndMinus5Mins=pad(getMins(toTime(toMins(sc.secondEnd)-5)));
+  const secondEndMinus10Mins=pad(getMins(toTime(toMins(sc.secondEnd)-10)));
+  const firstEndMinus5Mins=pad(getMins(toTime(toMins(sc.firstEnd)-5)));
+
+  if(type==='change'){
+    if(c.type===40){
+      // 40分：前半終了時間ちょうどの分
+      return`${nameStr}${firstEndMins}までに場内交渉お願いします`;
+    }else{
+      // 60分：前半終了-5分の分
+      return`${nameStr}${firstEndMinus5Mins}までに場内交渉お願いします`;
+    }
+  }else{
+    if(c.type===40){
+      // 40分：後半終了-5分
+      return`${nameStr}${secondEndMinus5Mins}までに延長交渉お願いします`;
+    }else{
+      // 60分：後半終了-10分
+      return`${nameStr}${secondEndMinus10Mins}までに延長交渉お願いします`;
+    }
+  }
 }
 
-function hasOverlap(courses,name){
-  const ranges=courses.filter(c=>!c.done).map(c=>getStaffRange(c,name)).filter(Boolean).map(r=>({s:toMins(r.start),e:toMins(r.end)}));
-  for(let i=0;i<ranges.length;i++)for(let j=i+1;j<ranges.length;j++)if(ranges[i].s<ranges[j].e&&ranges[j].s<ranges[i].e)return true;
-  return false;
-}
-function countCourses(courses,name){return courses.filter(c=>c.firstHalf.includes(name)||c.secondHalf.includes(name)).length;}
-function makeCopyText(type,names,t1,t2){return`${toTime(toMins(t1))}-${toTime(toMins(t2))}で${names.join('・')}さん${type==='change'?'場内':'延長'}交渉お願いします`;}
 function copyText(text,btnId){
   navigator.clipboard.writeText(text).then(()=>{
     const btn=document.getElementById(btnId);
@@ -278,6 +300,7 @@ function switchShop(i){
   renderShop(i);
 }
 function switchInnerTab(si,tab){shops[si].innerTab=tab;save();renderShop(si);}
+function toggleShowDone(si){shops[si].showDone=!shops[si].showDone;save();renderShop(si);}
 function openModal(id){document.getElementById(id).classList.add('open')}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 
@@ -339,7 +362,11 @@ function jonaiBtnClick(si,ci){
 }
 function openExtend(si,ci){
   pendingShop=si;pendingExtCourse=ci;
-  document.getElementById('inputExtend').innerHTML=shops[si].extOptions.map(o=>`<option value="${o}">${o}分延長</option>`).join('');
+  const c=shops[si].courses[ci];
+  const baseOpts=shops[si].extOptions;
+  // 60分コースのみハーフ延長(30分)を追加
+  const opts=c.type===60?[30,...baseOpts]:baseOpts;
+  document.getElementById('inputExtend').innerHTML=opts.map(o=>`<option value="${o}">${o}分延長</option>`).join('');
   openModal('modalExtend');
 }
 function confirmExtend(){
@@ -347,7 +374,6 @@ function confirmExtend(){
   shops[pendingShop].courses[pendingExtCourse].extended=(shops[pendingShop].courses[pendingExtCourse].extended||0)+mins;
   save();renderShop(pendingShop);closeModal('modalExtend');
 }
-
 function openEditTime(si,ci){
   pendingShop=si;pendingEditCourse=ci;
   const c=shops[si].courses[ci];
@@ -390,7 +416,8 @@ function renderShop(idx){
 
 function renderStaffTab(idx){
   const shop=shops[idx];
-  const working=shop.staff.filter(s=>s.working).length;
+  const sorted=sortedStaff(shop.staff);
+  const working=sorted.filter(s=>s.working).length;
   let html=`<div class="panel active"><div class="section-head">
     <span style="font-size:12px;color:#666">出勤中 ${working}人 / 全${shop.staff.length}人</span>
     <div style="display:flex;gap:6px">
@@ -401,7 +428,8 @@ function renderStaffTab(idx){
   if(shop.staff.length===0){html+=`<div class="empty">スタッフを登録するか、シフトを読み込んでください</div>`;}
   else{
     html+='<div class="grid">';
-    shop.staff.forEach((s,si)=>{
+    sorted.forEach(s=>{
+      const si=shop.staff.indexOf(s);
       html+=`<div class="card${s.working?' active-staff':''}">
         <button onclick="deleteStaff(${idx},${si})" style="position:absolute;top:5px;right:5px;border:none;background:transparent;cursor:pointer;color:#bbb;font-size:11px">✕</button>
         <div class="card-name" style="margin-bottom:4px">${s.name}</div>
@@ -418,19 +446,38 @@ function renderStaffTab(idx){
 function renderCourseTab(idx){
   const shop=shops[idx];
   const active=shop.courses.filter(c=>!c.done);
+  const done=shop.courses.filter(c=>c.done);
+  const showDone=shop.showDone||false;
   let html=`<div class="panel active"><div class="section-head">
     <span style="font-size:12px;color:#666">進行中 ${active.length}本</span>
-    <button class="btn primary" onclick="openAddCourse()">＋ コース追加</button>
+    <div style="display:flex;gap:6px;align-items:center">
+      ${done.length>0?`<button class="toggle-done-btn${showDone?' active':''}" onclick="toggleShowDone(${idx})">${showDone?'終了済みを隠す':'終了済みを表示'}(${done.length})</button>`:''}
+      <button class="btn primary" onclick="openAddCourse()">＋ コース追加</button>
+    </div>
   </div>`;
   if(shop.courses.length===0){html+=`<div class="empty">コースを追加してください</div>`;}
   else{
-    shop.courses.forEach((c,ci)=>{
+    const visibleCourses=showDone?shop.courses:shop.courses.filter(c=>!c.done);
+    visibleCourses.forEach(c=>{
+      const ci=shop.courses.indexOf(c);
       const sc=getSchedule(c);
       const ext=c.extended>0?` +${c.extended}分`:'';
-      const changeCopyText=c.firstHalf.length>0?makeCopyText('change',c.firstHalf,toTime(toMins(sc.firstEnd)-5),sc.firstEnd):'';
-      const extCopyText=c.secondHalf.length>0?makeCopyText('extend',c.secondHalf,toTime(toMins(sc.secondEnd)-10),toTime(toMins(sc.secondEnd)-5)):'';
+
+      // タイムライン時間計算
+      let changeTime,extNegTime;
+      if(c.type===40){
+        changeTime=sc.firstEnd; // 前半終了ちょうど
+        extNegTime=toTime(toMins(sc.secondEnd)-5); // 後半終了-5分
+      }else{
+        changeTime=toTime(toMins(sc.firstEnd)-5); // 前半終了-5分
+        extNegTime=toTime(toMins(sc.secondEnd)-10); // 後半終了-10分
+      }
+
+      const changeCopyText=c.firstHalf.length>0?makeCopyText('change',c.firstHalf,c):'';
+      const extCopyText=c.secondHalf.length>0?makeCopyText('extend',c.secondHalf,c):'';
       const changeBtnId=`copyChange_${idx}_${ci}`;
       const extBtnId=`copyExt_${idx}_${ci}`;
+
       html+=`<div class="course-card${c.done?' done-card':''}">
         <div class="course-head">
           <span class="course-num">#${ci+1}</span>
@@ -444,31 +491,28 @@ function renderCourseTab(idx){
             <button class="btn" style="font-size:11px;padding:2px 7px" onclick="deleteCourse(${idx},${ci})">削除</button>
           </div>
         </div>
+        ${c.done?'':`
         <div class="half-block">
           <div class="half">
             <div class="half-label">前半</div>
-            <div class="half-time-row">
-              <span class="half-time">${sc.firstStart} 〜 ${sc.firstEnd}</span>
-            </div>
+            <div class="half-time-row"><span class="half-time">${sc.firstStart} 〜 ${sc.firstEnd}</span></div>
             <div class="half-girls">${c.firstHalf.map(n=>`<span class="girl-chip">${n}<span class="remove" onclick="removeGirl(${idx},${ci},'first','${n}')">✕</span></span>`).join('')}
             <button class="btn" style="font-size:10px;padding:1px 6px" onclick="openAssign(${idx},${ci},'first')">＋</button></div>
           </div>
           <div class="half">
             <div class="half-label">後半</div>
-            <div class="half-time-row">
-              <span class="half-time">${sc.secondStart} 〜 ${sc.secondEnd}</span>
-            </div>
+            <div class="half-time-row"><span class="half-time">${sc.secondStart} 〜 ${sc.secondEnd}</span></div>
             <div class="half-girls">${c.secondHalf.map(n=>`<span class="girl-chip">${n}<span class="remove" onclick="removeGirl(${idx},${ci},'second','${n}')">✕</span></span>`).join('')}
             <button class="btn" style="font-size:10px;padding:1px 6px" onclick="openAssign(${idx},${ci},'second')">＋</button></div>
           </div>
         </div>
         <div class="timeline">
-          <span class="tl-item ${tlClass(sc.firstEnd)}">場内/チェンジ ${sc.firstEnd}</span>
-          ${changeCopyText?`<button class="copy-btn" id="${changeBtnId}" onclick="copyText('${changeCopyText}','${changeBtnId}')">コピー</button>`:''}
-          <span class="tl-item ${tlClass(sc.extNeg)}">延長交渉 ${sc.extNeg}</span>
-          ${extCopyText?`<button class="copy-btn" id="${extBtnId}" onclick="copyText('${extCopyText}','${extBtnId}')">コピー</button>`:''}
+          <span class="tl-item ${tlClass(changeTime)}">場内/チェンジ ${changeTime}</span>
+          ${changeCopyText?`<button class="copy-btn" id="${changeBtnId}" onclick="copyText(${JSON.stringify(changeCopyText)},'${changeBtnId}')">コピー</button>`:''}
+          <span class="tl-item ${tlClass(extNegTime)}">延長交渉 ${extNegTime}</span>
+          ${extCopyText?`<button class="copy-btn" id="${extBtnId}" onclick="copyText(${JSON.stringify(extCopyText)},'${extBtnId}')">コピー</button>`:''}
           ${c.extended>0?`<span class="tl-item extended">延長終了 ${sc.secondEnd}</span>`:`<span class="tl-item ${tlClass(sc.secondEnd)}">終了 ${sc.secondEnd}</span>`}
-        </div>
+        </div>`}
       </div>`;
     });
   }
@@ -477,17 +521,17 @@ function renderCourseTab(idx){
 
 function renderStatusTab(idx){
   const shop=shops[idx];
-  const working=shop.staff.filter(s=>s.working);
+  const sorted=sortedStaff(shop.staff.filter(s=>s.working));
   let html=`<div class="panel active">`;
-  if(working.length===0){html+=`<div class="empty">出勤中のスタッフがいません</div>`;}
+  if(sorted.length===0){html+=`<div class="empty">出勤中のスタッフがいません</div>`;}
   else{
     html+=`<table class="status-table"><thead><tr>
       <th>名前</th><th>本数</th><th>状況</th><th>コース</th><th>時間</th>
     </tr></thead><tbody>`;
-    working.forEach(s=>{
+    sorted.forEach(s=>{
       const ac=shop.courses.filter(c=>!c.done&&(c.firstHalf.includes(s.name)||c.secondHalf.includes(s.name)));
-      const total=countCourses(shop.courses,s.name);
-      const overlap=hasOverlap(shop.courses,s.name);
+      const total=shop.courses.filter(c=>c.firstHalf.includes(s.name)||c.secondHalf.includes(s.name)).length;
+      const overlap=ac.length>1;
       const overlapBadge=overlap?`<span class="overlap-badge">⚠ 重複</span>`:'';
       const countBadge=`<span class="count-badge">${total}本</span>`;
       if(ac.length===0){
@@ -495,19 +539,20 @@ function renderStatusTab(idx){
       }else{
         ac.forEach((c,i)=>{
           const ci=shop.courses.indexOf(c);
-          const range=getStaffRange(c,s.name);
+          const sc=getSchedule(c);
           const inFirst=c.firstHalf.includes(s.name);
           const inSecond=c.secondHalf.includes(s.name);
           const half=inFirst&&inSecond?'前半/後半':inFirst?'前半':'後半';
-          const leaveTime=range?range.end:'—';
-          const lc=leaveTime!=='—'?tlClass(leaveTime):'';
+          const start=inFirst?sc.firstStart:sc.secondStart;
+          const end=inSecond?sc.secondEnd:sc.firstEnd;
+          const lc=tlClass(end);
           html+=`<tr>
             <td>${i===0?`<span class="dot busy"></span>${s.name}${overlapBadge}`:''}</td>
             <td>${i===0?countBadge:''}</td>
             <td><span class="badge busy">${half}</span></td>
             <td>#${ci+1} ${c.type}分</td>
             <td style="font-size:12px;${lc==='done'?'color:#a32d2d;font-weight:500':lc==='soon'?'color:#ba7517;font-weight:500':''}">
-              ${range?`${range.start} 〜 ${range.end}`:'—'}
+              ${start} 〜 ${end}
             </td>
           </tr>`;
         });
